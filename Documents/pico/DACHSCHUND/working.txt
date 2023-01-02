@@ -1,0 +1,35 @@
+DASCHUND:
+	CLUE; What if d is too small? Connect with nc mercury.picoctf.net 58978.
+	HINT; What do you think about my pet? dachshund.jpg
+
+
+	GIVEN;
+		e - exponent for generation of public key (Must be an integer)
+		n - integer used for public key generation (raised to e)
+		c - encrypted data that has been encrypted using public and private keys associated with n and e
+
+	NEEDED;
+		o - original plaintext translation of c
+
+using m = c**(d mod n) we can go through all of the small values of d looking for a string that starts with "picoctf" encoded, this number would be "1121059911199116102" so hopefully we can just convert each number to a string of decimal characters and search for that sequence, then decrypt any that match and they should be the key.
+
+This didnt work, hoping for a simple solution but the logic wasnt sound.
+
+I looked a little further into the clue about the daschund and found an internet article about something called a weiner attack which looks perfect for this little problem.
+
+article: https://www.codingninjas.com/codestudio/library/wieners-low-decryption-exponent-attack-on-rsa
+
+according to the article, in a typical RSA cryptosystem if p and q are roughly the same size, e < n and d is sufficiently smaller than n, then the conditions for this attack are met.
+
+if p and q are the same size and e < n. Suppose the secret exponent d has no more than one-quarter the number of bits as the modulus n. We also know that there is an integer k for which ed − kφ(N)=1.
+
+As φ(n) ≈ n, we have k/d ≈ e/n. The following form describes the Wiener's attack:
+	In my on words, when the conditions above are met, wieners attack can be deployed, the conditions must be met because these need to be true inorder for the approximation k/d is an approximation of e/N
+
+	So once we can make that assumption, we can search for the correct pair k(i)/d(i) within the convergents of e/N (The convergents are approximations of a quotient that are generated using finite depth computations of its continued fraction expansion). A continued fraction expansion must be generated (In our case for a rational number, which means the continued fraction expansion will be finite). and then we can search through the convergents 
+
+
+1. found continued fraction expansion of e/n
+2. found all convergents of the continued fraction expansion for e/n, this resulted in a whole bunch of k/d pairs.
+3. went through the k/d pairs and calculated phi(n) for that pair, factorized this against n, and lastly if we found two roots that both multiplied to n then we had found the appropriate d value.
+4. once we had d I decrypted the message and presented it as hex, I could have printed it as ASCII but it was late at night so I just used an online converter :)

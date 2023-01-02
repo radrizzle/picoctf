@@ -1,0 +1,30 @@
+ARMSSEMBLY2:
+	What integer does this program print with argument 1748687564? File: chall_2.S Flag format: picoCTF{XXXXXXXX} -> (hex, lowercase, no 0x, and 32 bits. ex. 5614267 would be picoCTF{0055aabb})
+	Hint: Loops
+
+For a reverse engineering challenge it is always good to try and glean as much information as we can before diving in. The title suggests that ARM will be the architecture used, and it is a continuation of the first ARMSSEMBLY challenge from a previous page. We have the input to the program and now ideally we find a way to run it.
+
+Opening the file we see that it is infact arm architecture (armv8-a) and it is based on the chall_2.c file, of which we dont have.
+
+The other thing I am interested in is what a .S file is in actuality, looking it up a .S file is simply a source code file of assembly code written in numerous different architectures, in our case ARM.
+
+I will revisit ARMSSEMBLY to jog my memory on how that challenge was solved originally.
+
+ARMSSEMBLY REVISIT:
+	So in ARMSSEMBLY we were given a .S file, it was a very similar problem to this one. In the previous case I downloaded a cross compiler for ARM on ubuntu and compiled the .S file instead of reading through it because I am lazy. Lets see if that will work this time.
+
+Commands: aarch64-linux-gnu-as -o chall_2.o chall_2.S
+		  aarch64-linux-gnu-gcc -static -o chall_2 chall_2.o
+
+After compiling it and running it there was a problem (qemu: uncaught target signal 11 (Segmentation fault) - core dumped, Segmentation fault (core dumped))
+Short investigation later I realized I didnt include an argument which is why it threw an error. After including the input given in the description the program outputs the following.
+"Result: 951095396"
+
+Now it says above that the flag format should be in lowercase hex without trailing 0x and 32 bits. SO we shall do the conversions on our result.
+In hex: 38B09064
+In lowercase: 38b09064
+And in final format for flag: picoCTF{38b09064} 
+
+And viola, much easier than the previous challenge.
+
+

@@ -1,0 +1,27 @@
+NOPADDINGNOPROBLEM:
+	Oracles can be your best friend, they will decrypt anything, except the flag's ciphertext. How will you break it? Connect with nc mercury.picoctf.net 28517.
+
+	and the text from the connection:
+		   "Welcome to the Padding Oracle Challenge
+			This oracle will take anything you give it and decrypt using RSA. It will not accept the ciphertext with the secret message... Good Luck!
+
+
+			n: 78036133451499575803340751060821532010343248498951015489710808988917898114490374302703393122448506076296955234294011144386833087128851063690728088826433777087837567247703134401193597296803187355718722692181097664653420205250925900301323265858064291390386005118432890244803998570880004270889254974129783310609
+			e: 65537
+			ciphertext: 5193842797546069577926454310380410436016810365865969051545914177253153916487832903699834941178945893052065485280810374284910247761779291400525095749583921380781362851814622942738122784338221437397285972647020334298500117316918648665987670378337763494097866732998816686178331079919058843879375926193217783536
+
+
+			Give me ciphertext to decrypt:"
+
+
+So initially what I am thinking is that we are able to give the program plaintext, and get the resulting ciphertext, e is also relatively small which might mean if we have enough knowledge of plaintext -> ciphertext conversions we might be able to decrypt the secret message.
+
+Looked at the hint just for good measure: What can you do with a different pair of ciphertext and plaintext? What if it is not so different after all...
+Looking at the hint confirms what I am thinking. Ontop of this it occurred to me after a bit of research that the title hints that there may be no padding used to encrypt the secret message.
+
+
+
+
+
+
+

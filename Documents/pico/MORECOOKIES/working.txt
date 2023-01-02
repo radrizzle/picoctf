@@ -1,0 +1,37 @@
+MORECOOKIES:
+	This challenges starts with the following text, and a link.
+	"I forgot Cookies can Be modified Client-side, so now I decided to encrypt them! http://mercury.picoctf.net:21553/"
+
+	Looking at the website we have a page wtih no options, and a cookie stored called auth_name with a clearly encrypted value.
+
+Firstly I will try to copy the value and have a look at what type of encryption it could be, if it is simple hopefully I can just decrypt it using an online tool like cyberchef.
+
+value: MnlyaWlwcUY3a0VydEJXVGMyRlhGRWdtY0pjSmZZNGoySkNaYXBKWmRiakNnVmJsYUsvZXlrY2FsWjhOWnZwU2JFdDJyTCt1aXgxcWNIZSs4QldTaUROdnpVazEyTGc1N0RLejhDMitjckpwOUVCa1lRWFhDQnBuN1VDbmNwUHc=
+
+This looks like it could be base64 so I'll give that a try.
+after base64 decryption: 2yriipqF7kErtBWTc2FXFEgmcJcJfY4j2JCZapJZdbjCgVblaK/eykcalZ8NZvpSbEt2rL+uix1qcHe+8BWSiDNvzUk12Lg57DKz8C2+crJp9EBkYQXXCBpn7UCncpPw
+and after a second base64 decryption: Û*â...îA+´..saW.H&p.	}.#Ø..j.Yu¸Â.Våh¯ÞÊG...
+									  fúRlKv¬¿®..jpw¾ð...3oÍI5Ø¸9ì2³ð-¾r²iô@da.×..gí@§r.ð
+
+There could be multiple encryption types on this, so I will look into what type of encryption this could be.
+
+This seemed to be a bit of a dead end so I looked at the first hint: https://en.wikipedia.org/wiki/Homomorphic_encryption
+
+I got stuck on homomorphic encryption and had no idea what to look for, I checked a write-up for the next step and they said that in the descriptiont C, B and C are capitalized which is a hint to Cipher Block Chaining. had no idea what to look for there.
+
+Anyway after reading about CBC and then looking for subsequent attacks on CBC I found what is called a Bit-Flipping attack which relies on being able to adjust the bits in a ciphertext string in transit.
+Considering we can modify the cookie from the client-side, this will be perfect.
+
+How CBC works:
+	Essentially when CBC is used there is an original plaintext that needs to be encrypted in blocks, so it will be initialized with a key and an IV (Initialization vector) to encrypt the first block in the string. Once the first block is encrypted (XOR IV against block and then cipher with key), then on the next run through the IV is replaced with the previous block of ciphertext, and this is done up until the final block is encrypted. 
+
+In this case however I dont think it is necessary to attack the CBC algorithm. After some research I found what is called a bit-flip attack, essentially when a block cipher is implemented and a bit is flipped it completely changes the resulting encrypted value. Could we just flip each bit in the cookie and send it back to the server until we find one that gives us the admin search page?
+
+At this point I looked at the writeup for the final part because I had alot of questions that I wasnt sure how to answer. But the script bit_flip.py was written by hayden housen. https://picoctf2021.haydenhousen.com/web-exploitation/more-cookies
+
+The script decrypts the cookie from base64 twice as I had done at the beginning, and after that it takes each byte individually in the string and flips each bit in that byte. After flipping a bit, it reconstructs the new cookie (everything is the same except for the byte with the flipped bit) and sends it to the webpage. then it just checks if the falg is present at all on the page, if so you can assume we have found the admin flag at the current bit in the cookie string. very clever.
+
+That said there is still the question for me as to how they found out that there would be a single bit flag (instead of multiple) for the admin in the cookie.
+Upon looking into it it seems to be an assumption made simply because CBC is vulnerable to a bit flip attack. Once you knew this then a single bit flip attack was the only logical next step. I will make sure to remember that. Very difficult challenge but also pretty cool.
+
+
